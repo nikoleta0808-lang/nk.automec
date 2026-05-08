@@ -756,6 +756,44 @@ Sede: Cieza, Murcia.
                 </div>
               </div>
             </motion.div>
+
+            {/* Phase 5: Escalado */}
+            <motion.div variants={itemVariants} className="bg-white">
+              <div className="grid md:grid-cols-2 gap-16 items-center">
+                <div>
+                  <div className="flex items-center gap-4 mb-4">
+                    <Rocket className="text-primary w-8 h-8" />
+                    <span className="bg-primary text-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest">FASE 5: ESCALADO</span>
+                  </div>
+                  <h3 className="font-h3 text-primary text-2xl md:text-5xl mb-6 font-bold uppercase tracking-tight italic">Estructura de Crecimiento</h3>
+
+                  <div className="flex flex-wrap gap-4 mb-8">
+                    <Link to="/booking" className="bg-construction-orange text-white px-8 py-4 font-bold uppercase text-[12px] hover:bg-primary transition-all">
+                      Plan de Escala
+                    </Link>
+                    <Link to="/proceso" className="border-2 border-primary text-primary px-8 py-4 font-bold uppercase text-[12px] hover:bg-primary hover:text-white transition-all">
+                      Estructura
+                    </Link>
+                  </div>
+
+                  <p className="text-slate-600 mb-8 leading-relaxed text-lg font-medium">
+                    Convertimos su empresa en una máquina predecible. Creamos protocolos de formación para que su equipo crezca sin que la calidad ni el margen se vean afectados.
+                  </p>
+                  
+                  <div className="bg-white p-6 border-l-4 border-l-construction-orange font-mono text-xs shadow-sm max-w-md">
+                    <span className="text-construction-orange font-bold uppercase block mb-1">MÉTRICA DE ÉXITO:</span> 
+                    Capacidad de duplicar el volumen de obras sin aumentar sus horas de gestión personal.
+                  </div>
+                </div>
+                <Link to="/proceso" className="relative h-[450px] overflow-hidden rounded shadow-2xl block">
+                  <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80" className="w-full h-full object-cover transition-all duration-700 hover:scale-105" alt="Scaling" />
+                  <div className="absolute bottom-0 right-0 bg-blue-600 text-white p-8 text-center min-w-[200px] shadow-2xl">
+                    <div className="text-5xl font-black leading-none mb-1">X2</div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest">Capacidad instalada</div>
+                  </div>
+                </Link>
+              </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>

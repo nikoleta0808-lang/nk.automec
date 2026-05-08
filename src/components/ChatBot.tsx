@@ -1,40 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MessageSquare, X, Send, Bot, User, Loader2 } from 'lucide-react';
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-// Utility to get AI instance safely
-const getAI = () => {
-  try {
-    // Priority: 
-    // 1. VITE_ prefix (Standard for Vercel/Vite client-side)
-    // 2. process.env (AI Studio / Node / define in vite.config)
-    // 3. import.meta.env directly
-    let key = import.meta.env?.VITE_GEMINI_API_KEY || 
-              import.meta.env?.GEMINI_API_KEY;
-    
-    // Fallback for different environments (Node/Vite/Injected)
-    if (!key || key === "undefined" || key === "") {
-      const globalProcess = (window as any).process || (typeof process !== 'undefined' ? process : null);
-      key = globalProcess?.env?.VITE_GEMINI_API_KEY || 
-            globalProcess?.env?.GEMINI_API_KEY;
-    }
-    
-    if (!key || key === "undefined" || key === "" || key === "MY_GEMINI_API_KEY") {
-      return null;
-    }
-    
-    // Safety check for common mistakes
-    if (key.length < 20) {
-      console.warn("API Key too short. Prefix:", key.substring(0, 4));
-    }
-
-    return new GoogleGenerativeAI(key);
-  } catch (e) {
-    console.error("Critical: AI Init Error", e);
-    return null;
-  }
-};
 
 const SYSTEM_INSTRUCTION = `
 Eres el asistente virtual de NK AUTOMEC, una empresa de automatización para negocios de reformas y construcción. 
@@ -79,58 +45,38 @@ export const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      const ai = getAI();
-      if (!ai) {
-        throw new Error("API_KEY_MISSING");
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages,
+          userMessage
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || "SERVER_ERROR");
       }
 
-      const model = ai.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        systemInstruction: SYSTEM_INSTRUCTION
-      });
-
-      // Prepare history: Gemini expects history to start with a 'user' message
-      // and alternate between 'user' and 'model'.
-      const chatHistory = messages
-        .filter((_, index) => index > 0) // Skip initial greeting
-        .map(m => ({
-          role: (m.role === 'assistant' ? 'model' : 'user') as "model" | "user",
-          parts: [{ text: m.content }]
-        }));
-
-      const result = await model.generateContent({
-        contents: [
-          ...chatHistory,
-          { role: 'user', parts: [{ text: userMessage }] }
-        ]
-      });
-
-      const response = await result.response;
-      const text = response.text();
-      
-      if (!text) throw new Error("EMPTY_RESPONSE");
-
-      const assistantContent = text.replace(/\*/g, '');
+      const assistantContent = data.text.replace(/\*/g, '');
       setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
     } catch (error: any) {
       console.error("Chat Error:", error);
-      let errorMessage = "Parece que hay un problema de conexión. Por favor, inténtalo de nuevo en un momento.";
+      let errorMessage = "Parece que hay un problema de conexión.";
       
       const errorStr = String(error);
       const errorMsg = error.message || errorStr;
 
       if (errorMsg === "API_KEY_MISSING") {
-        errorMessage = "Falta la VITE_GEMINI_API_KEY. Ve a Configuración > Secrets, añade 'VITE_GEMINI_API_KEY' con tu clave y marca 'Vista previa' y 'Producción'.";
+        errorMessage = "¡Clave no detectada! Ve a 'Configuración' > 'Secrets', añade 'GEMINI_API_KEY' y reinicia el servidor.";
       } else if (errorMsg.includes("403") || errorMsg.includes("PERMISSION_DENIED") || errorMsg.includes("API key not valid")) {
-        errorMessage = "Error 403: Clave no válida. Asegúrate de usar el nombre 'VITE_GEMINI_API_KEY' en Secrets y que el valor empiece por 'AIza'.";
+        errorMessage = "Error de clave: El servidor no tiene una clave válida para Gemini.";
       } else if (errorMsg.includes("429") || errorMsg.includes("RESOURCE_EXHAUSTED")) {
-        errorMessage = "Límite de cuota excedido (429). Por favor, espera un minuto.";
-      } else if (errorMsg.includes("User identity is not confirmed")) {
-        errorMessage = "Tu cuenta de Google requiere verificación adicional para usar la API de Gemini.";
-      } else if (errorMsg.includes("location is not supported")) {
-        errorMessage = "Lo siento, la API de Gemini no está disponible en tu región actual.";
+        errorMessage = "Límite de cuota excedido. Espera un poco.";
       } else {
-        errorMessage = `Error técnico: ${errorMsg.substring(0, 100)}`;
+        errorMessage = `Error técnico: ${errorMsg.substring(0, 50)}...`;
       }
 
       setMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);

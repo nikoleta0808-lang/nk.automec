@@ -107,33 +107,40 @@ Horario de Atención: Lunes a Sábado hasta las 21:00
       {/* Timeline Steps */}
       <section className="max-w-7xl mx-auto px-8 py-24">
         <div className="hidden md:block absolute w-full h-[2px] bg-slate-200 mt-12 -z-10"></div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-12">
           <StepCard 
             step="01" 
             icon={ScanFace} 
             title="Diagnóstico" 
             desc="Análisis exhaustivo del estado actual y detección de puntos críticos de intervención." 
-            progress={25}
+            progress={20}
           />
           <StepCard 
             step="02" 
             icon={DraftingCompass} 
             title="Configuración" 
             desc="Modelado técnico y planificación de presupuestos cerrados sin desviaciones." 
-            progress={50}
+            progress={40}
           />
           <StepCard 
             step="03" 
             icon={Rocket} 
             title="Lanzamiento" 
             desc="Ejecución coordinada con nuestros equipos propios. Rapidez sin compromisos." 
-            progress={75}
+            progress={60}
           />
           <StepCard 
             step="04" 
             icon={Gauge} 
             title="Optimización" 
             desc="Control de calidad final y entrega de garantías mecánicas y estéticas." 
+            progress={80}
+          />
+          <StepCard 
+            step="05" 
+            icon={Settings} 
+            title="Escalado" 
+            desc="Protocolos de expansión para duplicar volumen sin perder control ni calidad." 
             progress={100}
           />
         </div>
