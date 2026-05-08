@@ -12,19 +12,22 @@ const getAI = () => {
     // 3. import.meta.env directly
     let key = import.meta.env?.VITE_GEMINI_API_KEY;
     
-    if (!key && typeof process !== 'undefined') {
-      key = process.env?.GEMINI_API_KEY;
+    if (!key || key === "undefined" || key === "") {
+      // In AI Studio, it's often injected into process.env if defined in vite.config
+      key = (window as any).process?.env?.GEMINI_API_KEY || (process as any)?.env?.GEMINI_API_KEY;
     }
     
-    if (!key) {
+    if (!key || key === "undefined" || key === "") {
       key = import.meta.env?.GEMINI_API_KEY;
     }
                 
-    if (!key || key === "undefined" || key === "MY_GEMINI_API_KEY") return null;
+    if (!key || key === "undefined" || key === "" || key === "MY_GEMINI_API_KEY") {
+      return null;
+    }
     
     // Safety check for common mistakes
     if (key.length < 20) {
-      console.warn("API Key might be too short or invalid");
+      console.warn("API Key too short. Prefix:", key.substring(0, 4));
     }
 
     return new GoogleGenerativeAI(key);
@@ -118,9 +121,9 @@ export const ChatBot = () => {
       const errorMsg = error.message || errorStr;
 
       if (errorMsg === "API_KEY_MISSING") {
-        errorMessage = "Falta la GEMINI_API_KEY. Debes ir a Configuración > Secrets en AI Studio y añadir una clave válida que empiece por 'AIza'.";
+        errorMessage = "Falta la GEMINI_API_KEY. Ve a Configuración > Secrets, añade 'GEMINI_API_KEY' con tu clave y asegúrate de marcar 'Vista previa' y 'Producción'. Luego reinicia el servidor.";
       } else if (errorMsg.includes("403") || errorMsg.includes("PERMISSION_DENIED") || errorMsg.includes("API key not valid")) {
-        errorMessage = "Error de permisos (403): Tu clave API no es válida. Asegúrate de copiarla correctamente desde Google AI Studio (debe empezar por 'AIza'). Si pusiste 'nk automec', eso no es una clave.";
+        errorMessage = "Error 403: Clave no válida. Asegúrate de que empiece por 'AIza'. En environments, selecciona tanto 'Producción' como 'Vista previa'.";
       } else if (errorMsg.includes("429") || errorMsg.includes("RESOURCE_EXHAUSTED")) {
         errorMessage = "Límite de cuota excedido (429). Por favor, espera un minuto.";
       } else if (errorMsg.includes("User identity is not confirmed")) {
