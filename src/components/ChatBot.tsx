@@ -6,7 +6,8 @@ import { GoogleGenAI } from "@google/genai";
 // Utility to get AI instance safely
 const getAI = () => {
   try {
-    const key = process.env.GEMINI_API_KEY;
+    // Try process.env (AI Studio / Node) or VITE_ prefix (Standard Vite/Vercel)
+    const key = (import.meta.env?.VITE_GEMINI_API_KEY) || (process.env.GEMINI_API_KEY);
     if (!key || key === "undefined") return null;
     return new GoogleGenAI({ apiKey: key });
   } catch (e) {
@@ -62,13 +63,20 @@ export const ChatBot = () => {
         throw new Error("API_KEY_MISSING");
       }
 
+      // Prepare history: Gemini expects history to start with a 'user' message
+      // and alternate between 'user' and 'model'.
+      // We skip the first assistant message (greeting) to ensure this.
+      const chatHistory = messages
+        .filter((_, index) => index > 0) // Skip initial greeting
+        .map(m => ({
+          role: (m.role === 'assistant' ? 'model' : 'user') as "model" | "user",
+          parts: [{ text: m.content }]
+        }));
+
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: [
-          ...messages.map(m => ({
-            role: m.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: m.content }]
-          })),
+          ...chatHistory,
           { role: 'user', parts: [{ text: userMessage }] }
         ],
         config: {
@@ -80,9 +88,16 @@ export const ChatBot = () => {
       setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
     } catch (error: any) {
       console.error("Chat Error:", error);
-      const errorMessage = error.message === "API_KEY_MISSING" 
-        ? "Lo siento, el asistente técnico no está configurado correctamente (falta API Key). Por favor, reserva una consultoría técnica para hablar con un humano."
-        : "Parece que hay un problema de conexión. Por favor, inténtalo de nuevo en un momento.";
+      let errorMessage = "Parece que hay un problema de conexión. Por favor, inténtalo de nuevo en un momento.";
+      
+      if (error.message === "API_KEY_MISSING") {
+        errorMessage = "Lo siento, el asistente técnico no está configurado correctamente (falta API Key). Por favor, reserva una consultoría técnica para hablar con un humano.";
+      } else if (error.message?.includes("403") || error.message?.includes("PERMISSION_DENIED")) {
+        errorMessage = "Lo siento, no tengo permiso para responder en este momento (API Key inválida o sin permisos).";
+      } else if (error.message?.includes("429") || error.message?.includes("RESOURCE_EXHAUSTED")) {
+        errorMessage = "Estoy recibiendo demasiadas consultas ahora mismo. ¿Podrías esperar un minuto?";
+      }
+
       setMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
     } finally {
       setIsLoading(false);
