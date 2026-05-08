@@ -3,7 +3,16 @@ import { motion, AnimatePresence } from 'motion/react';
 import { MessageSquare, X, Send, Bot, User, Loader2 } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Utility to get AI instance safely
+const getAI = () => {
+  try {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key || key === "undefined") return null;
+    return new GoogleGenAI({ apiKey: key });
+  } catch (e) {
+    return null;
+  }
+};
 
 const SYSTEM_INSTRUCTION = `
 Eres el asistente virtual de NK AUTOMEC, una empresa de automatización para negocios de reformas y construcción. 
@@ -48,7 +57,8 @@ export const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      if (!process.env.GEMINI_API_KEY) {
+      const ai = getAI();
+      if (!ai) {
         throw new Error("API_KEY_MISSING");
       }
 
