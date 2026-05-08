@@ -32,31 +32,43 @@ export const ChatBot = () => {
   const getSimulatedResponse = (input: string): string => {
     const text = input.toLowerCase();
     
+    if (text.includes('hola') || text.includes('buenas')) {
+      return '¡Hola! Soy el experto técnico de NK AUTOMEC. Ayudamos a empresas de reformas a industrializar sus ventas. ¿Te gustaría saber cómo automatizamos tu captación de clientes?';
+    }
+
     if (text.includes('lead') || text.includes('cliente') || text.includes('vender') || text.includes('captar')) {
       return 'Muchos dueños de reformas pierden dinero porque tardan horas en responder. Nuestro sistema automatiza WhatsApp para que el lead reciba respuesta en menos de 1 minuto y agende una cita solo en tu Calendly. Eso es captación real.';
     }
     
-    if (text.includes('industrializar') || text.includes('sistema') || text.includes('metodología')) {
+    if (text.includes('industrializar') || text.includes('sistema') || text.includes('metodología') || text.includes('automatización')) {
       return 'Industrializar significa que tus ventas no dependen de tu tiempo. Implementamos flujos automáticos en WhatsApp y Calendly que funcionan 24/7. Tú te centras en la obra, el sistema se centra en el cliente.';
     }
 
-    if (text.includes('consultoría') || (text.includes('cita')) || (text.includes('reunión'))) {
-      return 'Perfecto. La Consultoría Técnica es gratuita y analizamos tu sistema actual para ver dónde estás perdiendo dinero. Pulsa el botón "RESERVAR CONSULTORÍA" en la web para elegir tu hora.';
+    if (text.includes('consultoría') || text.includes('cita') || text.includes('reunión') || text.includes('hablar')) {
+      return 'Perfecto. La Consultoría Técnica es gratuita y analizamos tu sistema actual para ver dónde estás perdiendo dinero. 📅 Pulsa el botón "RESERVAR CONSULTORÍA" en la barra de navegación o escríbeme "AGENDA" para decirte los pasos.';
     }
     
-    if (text.includes('tiempo') || text.includes('tarda') || text.includes('duración')) {
-      return 'Nuestros sistemas se configuran en pocos días. No es un proyecto de meses; en una semana puedes tener tu flujo de WhatsApp automatizado captando leads de calidad.';
+    if (text.includes('agenda')) {
+      return 'Para agendar, simplemente haz clic en el botón naranja "RESERVAR CONSULTORÍA" arriba a la derecha. 🚀 Podrás elegir el día y la hora que mejor te venga.';
     }
 
-    if (text.includes('precio') || text.includes('costo') || text.includes('vale')) {
-      return 'La inversión varía según el volumen de leads que manejes. Sin embargo, el sistema se paga solo al evitar que pierdas clientes por falta de seguimiento. Hablemos en una consultoría gratuita para darte un presupuesto exacto.';
+    if (text.includes('tiempo') || text.includes('tarda') || text.includes('duración') || text.includes('minuto')) {
+      return 'Nuestros sistemas se configuran en muy pocos días. ⏱️ No es un proyecto de meses; en una semana puedes tener tu flujo de WhatsApp automatizado captando leads de calidad.';
+    }
+
+    if (text.includes('precio') || text.includes('costo') || text.includes('vale') || text.includes('dinero')) {
+      return 'La inversión varía según el volumen de trabajo. 💰 Sin embargo, el sistema se paga solo al evitar que pierdas clientes por falta de seguimiento. Hablemos en una consultoría gratuita para darte un presupuesto exacto.';
+    }
+
+    if (text.includes('reformas') || text.includes('construcción') || text.includes('obra')) {
+      return 'Somos especialistas en el sector de las reformas. 🏗️ Entendemos que tu tiempo es oro y que no puedes estar atendiendo el teléfono todo el día. Por eso industrializamos tu proceso comercial.';
     }
 
     if (text.includes('gracias') || text.includes('ok') || text.includes('entendido')) {
-      return '¡De nada! Si estás listo para escalar tu empresa de reformas, no dudes en agendar tu consultoría técnica gratuita. ¡Vamos a por ello!';
+      return '¡De nada! 😊 Si estás listo para llevar tu empresa de reformas al siguiente nivel, reserva tu consultoría gratuita. ¡Estamos aquí para ayudarte a escalar!';
     }
 
-    return 'Interesante pregunta. Como expertos en automatización para construcción, te diría que lo más importante es sistematizar el contacto inicial. ¿Quieres que te explique cómo lo hacemos con WhatsApp?';
+    return 'Entiendo perfectamente. 💡 Como expertos en sistemas para construcción, te sugiero que hablemos sobre cómo automatizar tu captación específica. ¿Te gustaría agendar una consultoría técnica gratuita para verlo en detalle?';
   };
 
   const handleSendMessage = async (text: string) => {
@@ -105,13 +117,24 @@ export const ChatBot = () => {
                   </p>
                 </div>
               </div>
-              <button 
-                onClick={() => setIsOpen(false)}
-                className="hover:text-construction-orange transition-colors"
-                id="close-chat"
-              >
-                <X size={20} />
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => {
+                    setMessages([{ role: 'assistant', content: '¡Hola de nuevo! Soy el experto técnico de NK AUTOMEC. ¿Qué otra duda tienes sobre automatización para tu constructora?' }]);
+                  }}
+                  className="hover:text-construction-orange transition-colors"
+                  title="Limpiar chat"
+                >
+                  <MessageSquare size={16} />
+                </button>
+                <button 
+                  onClick={() => setIsOpen(false)}
+                  className="hover:text-construction-orange transition-colors"
+                  id="close-chat"
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
 
             {/* Messages */}
@@ -135,11 +158,12 @@ export const ChatBot = () => {
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-white border-2 border-slate-200 p-3 flex items-center gap-2">
+                  <div className="bg-white border-2 border-slate-200 p-3 flex flex-col gap-1 shadow-sm">
+                    <span className="text-[10px] font-black uppercase text-construction-orange tracking-tighter">Analizando...</span>
                     <div className="flex gap-1">
-                      <motion.div animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0 }} className="w-1.5 h-1.5 bg-slate-400 rounded-full"></motion.div>
-                      <motion.div animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 bg-slate-400 rounded-full"></motion.div>
-                      <motion.div animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1.5 h-1.5 bg-slate-400 rounded-full"></motion.div>
+                      <motion.div animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0 }} className="w-1.5 h-1.5 bg-construction-orange rounded-full"></motion.div>
+                      <motion.div animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 bg-construction-orange rounded-full"></motion.div>
+                      <motion.div animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1.5 h-1.5 bg-construction-orange rounded-full"></motion.div>
                     </div>
                   </div>
                 </div>
