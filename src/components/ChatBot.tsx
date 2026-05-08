@@ -10,17 +10,16 @@ const getAI = () => {
     // 1. VITE_ prefix (Standard for Vercel/Vite client-side)
     // 2. process.env (AI Studio / Node / define in vite.config)
     // 3. import.meta.env directly
-    let key = import.meta.env?.VITE_GEMINI_API_KEY;
+    let key = import.meta.env?.VITE_GEMINI_API_KEY || 
+              import.meta.env?.GEMINI_API_KEY;
     
+    // Fallback for different environments (Node/Vite/Injected)
     if (!key || key === "undefined" || key === "") {
-      // In AI Studio, it's often injected into process.env if defined in vite.config
-      key = (window as any).process?.env?.GEMINI_API_KEY || (process as any)?.env?.GEMINI_API_KEY;
+      const globalProcess = (window as any).process || (typeof process !== 'undefined' ? process : null);
+      key = globalProcess?.env?.VITE_GEMINI_API_KEY || 
+            globalProcess?.env?.GEMINI_API_KEY;
     }
     
-    if (!key || key === "undefined" || key === "") {
-      key = import.meta.env?.GEMINI_API_KEY;
-    }
-                
     if (!key || key === "undefined" || key === "" || key === "MY_GEMINI_API_KEY") {
       return null;
     }
@@ -121,9 +120,9 @@ export const ChatBot = () => {
       const errorMsg = error.message || errorStr;
 
       if (errorMsg === "API_KEY_MISSING") {
-        errorMessage = "Falta la GEMINI_API_KEY. Ve a Configuración > Secrets, añade 'GEMINI_API_KEY' con tu clave y asegúrate de marcar 'Vista previa' y 'Producción'. Luego reinicia el servidor.";
+        errorMessage = "Falta la VITE_GEMINI_API_KEY. Ve a Configuración > Secrets, añade 'VITE_GEMINI_API_KEY' con tu clave y marca 'Vista previa' y 'Producción'.";
       } else if (errorMsg.includes("403") || errorMsg.includes("PERMISSION_DENIED") || errorMsg.includes("API key not valid")) {
-        errorMessage = "Error 403: Clave no válida. Asegúrate de que empiece por 'AIza'. En environments, selecciona tanto 'Producción' como 'Vista previa'.";
+        errorMessage = "Error 403: Clave no válida. Asegúrate de usar el nombre 'VITE_GEMINI_API_KEY' en Secrets y que el valor empiece por 'AIza'.";
       } else if (errorMsg.includes("429") || errorMsg.includes("RESOURCE_EXHAUSTED")) {
         errorMessage = "Límite de cuota excedido (429). Por favor, espera un minuto.";
       } else if (errorMsg.includes("User identity is not confirmed")) {
