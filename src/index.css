@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:wght@600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -7,16 +6,11 @@
   --color-construction-orange: #ff8031;
   --color-concrete-gray: #f3f4f6;
   --color-surface-container: #e9edff;
-  
-  --font-h1: "Poppins", sans-serif;
-  --font-h2: "Poppins", sans-serif;
-  --font-h3: "Poppins", sans-serif;
-  --font-body: "Inter", sans-serif;
 }
 
 @layer base {
   body {
-    @apply font-body bg-[#F3F4F6] text-[#141b2b];
+    @apply bg-[#F3F4F6] text-[#141b2b];
   }
 }
 
