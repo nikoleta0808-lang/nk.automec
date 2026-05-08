@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MessageSquare, X, Send, Bot, User, Loader2 } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Utility to get AI instance safely
 const getAI = () => {
@@ -15,7 +15,7 @@ const getAI = () => {
                 (import.meta.env?.GEMINI_API_KEY);
                 
     if (!key || key === "undefined" || key === "MY_GEMINI_API_KEY") return null;
-    return new GoogleGenAI({ apiKey: key });
+    return new GoogleGenerativeAI(key);
   } catch (e) {
     console.error("Critical: AI Init Error", e);
     return null;
@@ -70,9 +70,13 @@ export const ChatBot = () => {
         throw new Error("API_KEY_MISSING");
       }
 
+      const model = ai.getGenerativeModel({ 
+        model: "gemini-1.5-flash-002",
+        systemInstruction: SYSTEM_INSTRUCTION
+      });
+
       // Prepare history: Gemini expects history to start with a 'user' message
       // and alternate between 'user' and 'model'.
-      // We skip the first assistant message (greeting) to ensure this.
       const chatHistory = messages
         .filter((_, index) => index > 0) // Skip initial greeting
         .map(m => ({
@@ -80,18 +84,15 @@ export const ChatBot = () => {
           parts: [{ text: m.content }]
         }));
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+      const result = await model.generateContent({
         contents: [
           ...chatHistory,
           { role: 'user', parts: [{ text: userMessage }] }
-        ],
-        config: {
-          systemInstruction: SYSTEM_INSTRUCTION
-        }
+        ]
       });
 
-      const assistantContent = (response.text || "Lo siento, tuve un pequeño problema técnico. ¿Podrías repetir tu pregunta?").replace(/\*/g, '');
+      const response = await result.response;
+      const assistantContent = (response.text() || "Lo siento, tuve un pequeño problema técnico.").replace(/\*/g, '');
       setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
     } catch (error: any) {
       console.error("Chat Error:", error);
