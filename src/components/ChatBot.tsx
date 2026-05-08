@@ -21,6 +21,12 @@ const getAI = () => {
     }
                 
     if (!key || key === "undefined" || key === "MY_GEMINI_API_KEY") return null;
+    
+    // Safety check for common mistakes
+    if (key.length < 20) {
+      console.warn("API Key might be too short or invalid");
+    }
+
     return new GoogleGenerativeAI(key);
   } catch (e) {
     console.error("Critical: AI Init Error", e);
@@ -112,9 +118,9 @@ export const ChatBot = () => {
       const errorMsg = error.message || errorStr;
 
       if (errorMsg === "API_KEY_MISSING") {
-        errorMessage = "Falta la GEMINI_API_KEY. Por favor, configúrala en el panel de Secrets (AI Studio) o como VITE_GEMINI_API_KEY (Vercel).";
+        errorMessage = "Falta la GEMINI_API_KEY. Debes ir a Configuración > Secrets en AI Studio y añadir una clave válida que empiece por 'AIza'.";
       } else if (errorMsg.includes("403") || errorMsg.includes("PERMISSION_DENIED") || errorMsg.includes("API key not valid")) {
-        errorMessage = "Error de permisos (403): La clave API de Google Gemini no es válida o no tiene permisos.";
+        errorMessage = "Error de permisos (403): Tu clave API no es válida. Asegúrate de copiarla correctamente desde Google AI Studio (debe empezar por 'AIza'). Si pusiste 'nk automec', eso no es una clave.";
       } else if (errorMsg.includes("429") || errorMsg.includes("RESOURCE_EXHAUSTED")) {
         errorMessage = "Límite de cuota excedido (429). Por favor, espera un minuto.";
       } else if (errorMsg.includes("User identity is not confirmed")) {
