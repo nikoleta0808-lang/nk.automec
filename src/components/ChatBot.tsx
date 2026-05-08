@@ -6,11 +6,18 @@ import { GoogleGenAI } from "@google/genai";
 // Utility to get AI instance safely
 const getAI = () => {
   try {
-    // Try process.env (AI Studio / Node) or VITE_ prefix (Standard Vite/Vercel)
-    const key = (import.meta.env?.VITE_GEMINI_API_KEY) || (process.env.GEMINI_API_KEY);
-    if (!key || key === "undefined") return null;
+    // Priority: 
+    // 1. VITE_ prefix (Standard for Vercel/Vite client-side)
+    // 2. process.env (AI Studio / Node / define in vite.config)
+    // 3. import.meta.env directly
+    const key = (import.meta.env?.VITE_GEMINI_API_KEY) || 
+                (process.env?.GEMINI_API_KEY) || 
+                (import.meta.env?.GEMINI_API_KEY);
+                
+    if (!key || key === "undefined" || key === "MY_GEMINI_API_KEY") return null;
     return new GoogleGenAI({ apiKey: key });
   } catch (e) {
+    console.error("Critical: AI Init Error", e);
     return null;
   }
 };
@@ -91,11 +98,13 @@ export const ChatBot = () => {
       let errorMessage = "Parece que hay un problema de conexión. Por favor, inténtalo de nuevo en un momento.";
       
       if (error.message === "API_KEY_MISSING") {
-        errorMessage = "Lo siento, el asistente técnico no está configurado correctamente (falta API Key). Por favor, reserva una consultoría técnica para hablar con un humano.";
+        errorMessage = "Falta la GEMINI_API_KEY. Por favor, configúrala en el panel de Secrets (AI Studio) o como VITE_GEMINI_API_KEY (Vercel).";
       } else if (error.message?.includes("403") || error.message?.includes("PERMISSION_DENIED")) {
-        errorMessage = "Lo siento, no tengo permiso para responder en este momento (API Key inválida o sin permisos).";
+        errorMessage = "Error de permisos (403). Tu API Key podría ser inválida o no tener acceso a Gemini.";
       } else if (error.message?.includes("429") || error.message?.includes("RESOURCE_EXHAUSTED")) {
-        errorMessage = "Estoy recibiendo demasiadas consultas ahora mismo. ¿Podrías esperar un minuto?";
+        errorMessage = "Límite de cuota excedido (429). Por favor, espera un minuto.";
+      } else if (error.message) {
+        errorMessage = `Error técnico: ${error.message}`;
       }
 
       setMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
