@@ -10,9 +10,15 @@ const getAI = () => {
     // 1. VITE_ prefix (Standard for Vercel/Vite client-side)
     // 2. process.env (AI Studio / Node / define in vite.config)
     // 3. import.meta.env directly
-    const key = (import.meta.env?.VITE_GEMINI_API_KEY) || 
-                (process.env?.GEMINI_API_KEY) || 
-                (import.meta.env?.GEMINI_API_KEY);
+    let key = import.meta.env?.VITE_GEMINI_API_KEY;
+    
+    if (!key && typeof process !== 'undefined') {
+      key = process.env?.GEMINI_API_KEY;
+    }
+    
+    if (!key) {
+      key = import.meta.env?.GEMINI_API_KEY;
+    }
                 
     if (!key || key === "undefined" || key === "MY_GEMINI_API_KEY") return null;
     return new GoogleGenerativeAI(key);
@@ -71,7 +77,7 @@ export const ChatBot = () => {
       }
 
       const model = ai.getGenerativeModel({ 
-        model: "gemini-1.5-flash-002",
+        model: "gemini-1.5-flash",
         systemInstruction: SYSTEM_INSTRUCTION
       });
 
@@ -92,20 +98,31 @@ export const ChatBot = () => {
       });
 
       const response = await result.response;
-      const assistantContent = (response.text() || "Lo siento, tuve un pequeño problema técnico.").replace(/\*/g, '');
+      const text = response.text();
+      
+      if (!text) throw new Error("EMPTY_RESPONSE");
+
+      const assistantContent = text.replace(/\*/g, '');
       setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
     } catch (error: any) {
       console.error("Chat Error:", error);
       let errorMessage = "Parece que hay un problema de conexión. Por favor, inténtalo de nuevo en un momento.";
       
-      if (error.message === "API_KEY_MISSING") {
+      const errorStr = String(error);
+      const errorMsg = error.message || errorStr;
+
+      if (errorMsg === "API_KEY_MISSING") {
         errorMessage = "Falta la GEMINI_API_KEY. Por favor, configúrala en el panel de Secrets (AI Studio) o como VITE_GEMINI_API_KEY (Vercel).";
-      } else if (error.message?.includes("403") || error.message?.includes("PERMISSION_DENIED")) {
-        errorMessage = "Error de permisos (403). Tu API Key podría ser inválida o no tener acceso a Gemini.";
-      } else if (error.message?.includes("429") || error.message?.includes("RESOURCE_EXHAUSTED")) {
+      } else if (errorMsg.includes("403") || errorMsg.includes("PERMISSION_DENIED") || errorMsg.includes("API key not valid")) {
+        errorMessage = "Error de permisos (403): La clave API de Google Gemini no es válida o no tiene permisos.";
+      } else if (errorMsg.includes("429") || errorMsg.includes("RESOURCE_EXHAUSTED")) {
         errorMessage = "Límite de cuota excedido (429). Por favor, espera un minuto.";
-      } else if (error.message) {
-        errorMessage = `Error técnico: ${error.message}`;
+      } else if (errorMsg.includes("User identity is not confirmed")) {
+        errorMessage = "Tu cuenta de Google requiere verificación adicional para usar la API de Gemini.";
+      } else if (errorMsg.includes("location is not supported")) {
+        errorMessage = "Lo siento, la API de Gemini no está disponible en tu región actual.";
+      } else {
+        errorMessage = `Error técnico: ${errorMsg.substring(0, 100)}`;
       }
 
       setMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
