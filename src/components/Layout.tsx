@@ -104,7 +104,7 @@ export const Footer = () => {
               { icon: Phone, href: "tel:623397132" },
               { icon: Mail, href: "mailto:info@nk-auto-mec.com" },
               { icon: MessageSquare, href: "https://wa.me/34623397132" },
-              { icon: Instagram, href: "https://www.instagram.com/nk.automec?igsh=MnducDh5ODJwcms3" }
+              { icon: Instagram, href: "https://www.instagram.com/nkautomec?igsh=MXc4bDVhOXEzbzYxYg%3D%3D&utm_source=qr" }
             ].map((social, i) => (
               <a key={i} href={social.href} target={social.href.startsWith('http') ? "_blank" : undefined} rel={social.href.startsWith('http') ? "noopener noreferrer" : undefined} className="w-12 h-12 bg-white/10 border border-white/10 flex items-center justify-center hover:bg-construction-orange transition-all">
                 <social.icon size={20} />

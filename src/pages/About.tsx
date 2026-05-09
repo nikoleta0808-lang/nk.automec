@@ -152,7 +152,7 @@ const About = () => {
               </div>
               <div className="flex items-center gap-4">
                 <Instagram className="text-construction-orange" size={24} />
-                <a href="https://www.instagram.com/nk.automec?igsh=MnducDh5ODJwcms3" target="_blank" rel="noopener noreferrer" className="font-medium text-slate-600 font-body hover:text-construction-orange transition-colors">@nk.automec</a>
+                <a href="https://www.instagram.com/nkautomec?igsh=MXc4bDVhOXEzbzYxYg%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" className="font-medium text-slate-600 font-body hover:text-construction-orange transition-colors">@nkautomec</a>
               </div>
             </div>
           </div>

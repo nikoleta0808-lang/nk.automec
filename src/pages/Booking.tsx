@@ -108,7 +108,7 @@ const Booking = () => {
               <a href="https://wa.me/34623397132" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-4 bg-[#25D366] text-white py-6 font-black uppercase tracking-widest text-xs hover:brightness-110 transition-all shadow-lg">
                 <MessageSquare size={18} /> WhatsApp Directo
               </a>
-              <a href="https://www.instagram.com/nk.automec?igsh=MnducDh5ODJwcms3" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-4 bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white py-6 font-black uppercase tracking-widest text-xs hover:brightness-110 transition-all shadow-lg">
+              <a href="https://www.instagram.com/nkautomec?igsh=MXc4bDVhOXEzbzYxYg%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-4 bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white py-6 font-black uppercase tracking-widest text-xs hover:brightness-110 transition-all shadow-lg">
                 <Instagram size={18} /> Instagram
               </a>
             </div>
